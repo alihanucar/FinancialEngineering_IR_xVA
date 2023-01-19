@@ -8,11 +8,16 @@ The course is based on the book “Mathematical Modeling and Computation
 in Finance: With Exercises and Python and MATLAB Computer Codes”,
 by C.W. Oosterlee and L.A. Grzelak, World Scientific Publishing Europe Ltd, 2019.
 @author: Lech A. Grzelak and Emanuele Casamassima
+
+19.01.2023 
+Alihan Ucar
+I just wonder how can i imply one time single prepayment instead of Constant Prepayment Rate (CPR) so i implied it below:
+
 """
 import numpy as np
 import matplotlib.pyplot as plt
 
-def Bullet(rate,notional,periods,CPR):
+def Bullet(rate,notional,periods,CPR, prepayment_month, prepayment_amount):
     # it returns a matrix M such that
     # M = [t  notional(t)  prepayment(t)  notional_quote(t)  interest_(t)  installment(t)]
     # WARNING! here "rate" and "periods" are quite general, the choice of getting year/month/day.. steps, depends on the rate
@@ -24,7 +29,12 @@ def Bullet(rate,notional,periods,CPR):
         M[t,4] = rate*M[t-1,1]      # interest quote
         M[t,3] = 0                  # repayment, 0 for bullet mortgage
         scheduled_oustanding = M[t-1,1] - M[t,3]
-        M[t,2] = scheduled_oustanding * CPR    # prepayment
+        #M[t,2] = scheduled_oustanding * CPR    # prepayment
+        if t == prepayment_month:
+                M[t,2] = prepayment_amount
+        else:
+            M[t,2] = 0
+        
         M[t,1] = scheduled_oustanding - M[t,2] # notional(t) = notional(t-1) - (repayment + prepayment)
         M[t,5] = M[t,4] + M[t,2] + M[t,3]
         
@@ -43,10 +53,14 @@ def mainCode():
     
     # Prepayment rate, 0.1 = 10%
     Lambda = 0.01
+    # Month of the single prepayment amount.
+    p_m = 4
+    # Single prepayment amount
+    p_a = 100000
 
     # For simplicity we assume 1 as unit (yearly payments of mortgage)
     T_end = 30
-    M = Bullet(r,N0,T_end,Lambda)
+    M = Bullet(r,N0,T_end,Lambda, p_m, p_a)
     
     for i in range(0,T_end+1):
         print("Ti={0}, Notional={1:.0f}, Prepayment={2:.0f}, Notional Repayment={3:.0f}, Interest Rate={4:.0f}, Installment={5:.0f} ".format(M[i,0],M[i,1],M[i,2],M[i,3],M[i,4],M[i,5]))
