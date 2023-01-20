@@ -8,11 +8,17 @@ The course is based on the book “Mathematical Modeling and Computation
 in Finance: With Exercises and Python and MATLAB Computer Codes”,
 by C.W. Oosterlee and L.A. Grzelak, World Scientific Publishing Europe Ltd, 2019.
 @author: Lech A. Grzelak and Emanuele Casamassima
+
+20.01.2023 
+Alihan Ucar
+I just wonder how can i imply one time single prepayment instead of Constant Prepayment Rate (CPR) so i implied it below:
+
+
 """
 import numpy as np
 import matplotlib.pyplot as plt
 
-def Annuity(rate,notional,periods,CPR):
+def Annuity(rate,notional,periods,CPR, prepayment_month, prepayment_amount):
     # it returns a matrix M such that
     # M = [t  notional(t)  prepayment(t)  notional_quote(t)  interest_quote(t)  installment(t)]
     # WARNING! here "rate" and "periods" are quite general, the choice of getting year/month/day.. steps, depends on the rate
@@ -34,8 +40,11 @@ def Annuity(rate,notional,periods,CPR):
         M[t,3] = M[t,5] - M[t,4] 
         
         # Prepayment, P(t_i)= Lambda * (N(t_i) -Q(t_i))
-        M[t,2] = CPR * (M[t-1,1] - M[t,3]) 
-        
+        #M[t,2] = CPR * (M[t-1,1] - M[t,3]) 
+        if t == prepayment_month:
+            M[t,2] = prepayment_amount
+        else:
+            M[t,2] = 0
         # notional, N(t_{i+1}) = N(t_{i}) - lambda * (Q(t_{i} + P(t_i)))
         M[t,1] = M[t-1,1] - M[t,3] - M[t,2] 
     return M
@@ -50,7 +59,10 @@ def mainCode():
     
     # Prepayment rate, 0.1 = 10%
     Lambda = 0.1
-
+    # Month of the single prepayment amount.
+    p_m = 4
+    # Single prepayment amount
+    p_a = 250000
     # For simplicity we assume 1 as unit (yearly payments of mortgage)
     T_end = 30
     M = Annuity(r,N0,T_end,Lambda)
