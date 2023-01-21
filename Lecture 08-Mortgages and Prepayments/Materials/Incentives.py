@@ -44,6 +44,9 @@ def mainCode():
 
 
     IncentiveFunction = lambda x : 0.04 + 0.1/(1 + np.exp(115 * (0.02-x))) 
+    #This function calculates the incentive for the lender to refinance the loan based on the difference between the old rate and new rate, represented by "x". The         value is calculated as a sum of two parts: 0.04 is a constant term that represents the minimum incentive for the lender to refinance the loan.
+    #0.1/(1 + np.exp(115 * (0.02-x))) is the second term, it's a sigmoid function that increase the incentive as the difference between the old rate and new rate           decrease. The e^(-115*(0.02-x)) is a exponential function and it's always between 0 and 1. As the x gets closer to 0.02, the exponential term get closer to 1 and       the second term get closer to 0.1, if x is larger than 0.02 the second term becomes smaller.
+    
     
     oldRate = 0.05
     newRate = np.linspace(-0.05,0.15,25)
