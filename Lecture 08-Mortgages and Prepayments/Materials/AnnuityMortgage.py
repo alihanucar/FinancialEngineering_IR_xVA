@@ -13,12 +13,16 @@ by C.W. Oosterlee and L.A. Grzelak, World Scientific Publishing Europe Ltd, 2019
 Alihan Ucar
 I just wonder how can i imply one time single prepayment instead of Constant Prepayment Rate (CPR) so i implied it below:
 
+23.01.2023
+@***additional_contribution: Alihan Ucar, I solved the 3rd exercise which is given in the end of the above course. I modified the code with several
+prepayments instead of CPR modelling. 
+
 
 """
 import numpy as np
 import matplotlib.pyplot as plt
 
-def Annuity(rate,notional,periods,CPR, prepayment_month, prepayment_amount):
+def Annuity(rate,notional,periods, prepayment_month, prepayment_amount):
     # it returns a matrix M such that
     # M = [t  notional(t)  prepayment(t)  notional_quote(t)  interest_quote(t)  installment(t)]
     # WARNING! here "rate" and "periods" are quite general, the choice of getting year/month/day.. steps, depends on the rate
@@ -40,11 +44,22 @@ def Annuity(rate,notional,periods,CPR, prepayment_month, prepayment_amount):
         M[t,3] = M[t,5] - M[t,4] 
         
         # Prepayment, P(t_i)= Lambda * (N(t_i) -Q(t_i))
-        #M[t,2] = CPR * (M[t-1,1] - M[t,3]) 
-        if t == prepayment_month:
-            M[t,2] = prepayment_amount
+        #M[t,2] = CPR * (M[t-1,1] - M[t,3])
+        
+        # Single prepayment / Alihan Ucar
+        #if t == prepayment_month:
+            #M[t,2] = prepayment_amount
+        #else:
+            #M[t,2] = 0
+        #*** Several prepayments for in t times / Alihan Ucar .
+        if t in prepayment_month:
+            index = prepayment_month.index(t)
+            M[t,2] = prepayment_amount[index]
         else:
-            M[t,2] = 0
+            M[t,2] = 0    
+            
+            
+            
         # notional, N(t_{i+1}) = N(t_{i}) - lambda * (Q(t_{i} + P(t_i)))
         M[t,1] = M[t-1,1] - M[t,3] - M[t,2] 
     return M
@@ -58,14 +73,23 @@ def mainCode():
     r = 0.05
     
     # Prepayment rate, 0.1 = 10%
-    Lambda = 0.1
-    # Month of the single prepayment amount.
-    p_m = 4
-    # Single prepayment amount
-    p_a = 250000
+    #Lambda = 0.1
+    
+    # Month of the single prepayment amount. / Alihan Ucar
+    #p_m = 4
+    # Single prepayment amount 
+    #p_a = 250000
+    
+    # ***Months of the prepayments.
+    p_m = [3,5,7]
+    # ***Prepayment amounts
+    p_a = [50000,100000,150000]
+    
+    
+    
     # For simplicity we assume 1 as unit (yearly payments of mortgage)
     T_end = 30
-    M = Annuity(r,N0,T_end,Lambda)
+    M = Annuity(r,N0,T_end,p_m, p_a)
     
     for i in range(0,T_end+1):
         print("Ti={0}, Notional={1:.0f}, Prepayment={2:.0f}, Notional Repayment={3:.0f}, Interest Rate={4:.0f}, Installment={5:.0f} ".format(M[i,0],M[i,1],M[i,2],M[i,3],M[i,4],M[i,5]))
